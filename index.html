@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Mygame Teste</title>
+        <style type="text/css">
+            canvas {
+              border: 1px solid #000000;
+            }
+        </style>
+    </head>   
+    <body  onload="inicializar()">
+        <canvas id="canvas" width="600" height="480">
+            Navegador não suporta HTML5
+        </canvas>
+        
+        <script type="text/javascript">
+        
+            var barraAltura, barraLargura, jogadorPosicaoX, velocidadeJogador, pontosJogador,missao;
+        
+            var diametros = new Array(
+                {'diametro' : 15, 'pontos' : 1},
+                {'diametro' : 25, 'pontos' : 2},
+                {'diametro' : 35, 'pontos' : 3}
+            );
+            
+            function bola()
+            {   velocidadeBola = 0;
+                var index = Math.round(Math.random() * (3 - 1) + 1) - 1;
+                this.bolaDiametro = diametros[index]['diametro'];
+                this.pontos = diametros[index]['pontos'];
+                
+                this.bolaPosX = Math.random() * 600;
+                this.bolaPosY = -10;
+                this.velocidadeBola = 20 * (10 - 6) + 6;
+                this.colisao = false;
+            }
+        
+            function inicializar()
+            {
+                barraAltura = 80;
+                barraLargura = 30;
+                
+                pontosJogador = "20";
+                jogadorPosicaoX = (canvas.width - barraLargura) / 2;
+
+                missao = "Escapar\ndas bolas";
+
+                velocidadeJogador = 20;
+                velocidadeJogador++;
+                
+                canvas = document.getElementById("canvas");
+                context = canvas.getContext("2d");              
+                
+                primeira = new bola()
+                bolas = new Array(primeira);
+                
+                document.addEventListener('keydown', keyDown);
+                
+                setInterval(gameLoop, 30);
+            }
+            
+            function keyDown(e) 
+            {
+                if(e.keyCode == 37)
+                {
+                    if(jogadorPosicaoX > 0)
+                    {
+                        jogadorPosicaoX -= velocidadeJogador;
+                    }
+                }
+                
+                if(e.keyCode == 39)
+                {
+                    if(jogadorPosicaoX < (canvas.width - barraLargura))
+                    {
+                        jogadorPosicaoX += velocidadeJogador;
+                    }
+                }
+            }
+           
+            
+            function gameLoop(){
+                //Limpa Tela
+                context.clearRect(0, 0, canvas.width, canvas.height);
+                
+                // Checar bolas
+                if(bolas.length <= 0)
+                {
+                    bolas.push(new bola());
+                }
+                
+                // Bolas                
+                bolas.forEach(function(b, index)
+                {   
+                    context.beginPath();
+                    context.arc(b.bolaPosX, b.bolaPosY, b.bolaDiametro, 0, Math.PI * 2, true);
+                   //  context.moveTo(b.bolaPosX+35, b.bolaPosY);
+                    
+                   //  context.arc(b.bolaPosX, b.bolaPosY, b.bolaDiametro, 0, Math.PI, false);  // Boca (sentido horário)
+                   //  context.moveTo(b.bolaPosX-90, b.bolaPosY-10);
+                    
+                   //  context.arc(b.bolaPosX, b.bolaPosY, b.bolaDiametro,0 ,Math.PI * 2, true);  // Olho esquerdo
+                   //  context.moveTo(b.bolaPosX+35, b.bolaPosY);
+                    
+                   //  context.arc(b.bolaPosX, b.bolaPosY, b.bolaDiametro, 0, Math.PI * 2, true);  // Olho direito
+
+                   //  //context.fillRect(b.bolaPosX, b.bolaPosY, b.bolaDiametro, 0, 10, 10);
+
+                     context.fill();
+
+                    // context.moveTo(b.bolaPosX, b.bolaPosY);
+                    //    //75 x, 40 y//
+                    // //cp1x,cp1y,cp2x,cp2y,x,y
+                    // context.bezierCurveTo(b.bolaPosX,b.bolaPosY-3,b.bolaPosX,b.bolaPosY-15,b.bolaPosX-25,b.bolaPosY-15);
+
+                    // context.bezierCurveTo(b.bolaPosX-55, b.bolaPosY-15,b.bolaPosX-55,b.bolaPosY+22.5,b.bolaPosX-55,b.bolaPosY+22.5);
+
+                    // context.bezierCurveTo(b.bolaPosX-55,b.bolaPosY+40,b.bolaPosX-36,b.bolaPosY+62,b.bolaPosX,b.bolaPosY+80);
+
+                    // context.bezierCurveTo(b.bolaPosX+35,b.bolaPosY+62,b.bolaPosX+55,b.bolaPosY+40,b.bolaPosX+55,b.bolaPosY+22.5);
+
+                    // context.bezierCurveTo(b.bolaPosX+55,b.bolaPosY+22.5,b.bolaPosX+55,b.bolaPosY-15,b.bolaPosX+25,b.bolaPosY-15);
+
+                    // context.bezierCurveTo(b.bolaPosX+10,b.bolaPosY-15,b.bolaPosX,b.bolaPosY-3,b.bolaPosX,b.bolaPosY);
+
+                    // context.fill();
+
+
+                    // Criar nova bola?
+                    if(b.bolaPosY >= 50 && bolas.length <= 2)
+                    {
+                        bolas.push(new bola());
+
+                    }
+                    
+                    if(b.bolaPosY <= canvas.height)
+                    {   b.velocidadeBola = 0;
+                    	b.velocidadeBola =  Math.random() * (10 - 8) + 6;
+                        b.bolaPosY += b.velocidadeBola;
+                    }
+                    else
+                    {   b.velocidadeBola= 0;
+                        b.bolaPosY = 0;
+                        bolas.splice(index, 1);
+                    }
+                    
+                    // Checar Colisão
+                    if((b.bolaPosX > jogadorPosicaoX-40 && b.bolaPosX < jogadorPosicaoX + barraLargura +40) && b.bolaPosY >= canvas.height - barraAltura && b.colisao == false)
+                    {   
+                        if (pontosJogador < 1){
+                            pontosJogador = "0000";
+                        }else{
+                            
+                            pontosJogador -= b.pontos.toString();
+                            b.colisao = true;
+                            context.fillText("AIN ZENTI", canvas.width - 600,80);
+                            context.fillRect(jogadorPosicaoX, canvas.height - barraAltura, barraLargura, barraAltura);
+                            context.fillRect(jogadorPosicaoX, canvas.height - barraAltura, 10, 10);
+                            context.fillRect(jogadorPosicaoX-2, canvas.height - barraAltura, 30, 10);
+                            context.fillRect(jogadorPosicaoX, canvas.height - barraAltura/2-10, 40, 10);
+                            context.fillRect(jogadorPosicaoX-2, canvas.height - barraAltura/2-20, 40, 10);
+
+                            context.fillRect(jogadorPosicaoX, canvas.height - barraAltura/2-1, 5, 5);
+                            context.fillRect(jogadorPosicaoX-2, canvas.height - barraAltura/2-1, 5, 10);
+                        }
+                    }
+                });
+                
+                // Escreve placar
+                context.font = "32pt Tahoma";
+                if(pontosJogador < 1){
+                    context.clearRect(0, 0, canvas.width, canvas.height);
+                    context.fillText("GAME OVER", canvas.width - 600, 50);
+                    this.velocidadeJogador+2;
+                    inicializar();
+                }else{
+                    context.fillText(pontosJogador, canvas.width - 150, 50);
+                    context.font = "22pt Tahoma";
+                    context.fillText("Missão:", canvas.width -600, 30);
+                    context.fillText(missao, canvas.width -600, 50);
+                }
+                
+                // Jogador
+
+                context.fillRect(jogadorPosicaoX, canvas.height - barraAltura, barraLargura, barraAltura);
+                context.fillRect(jogadorPosicaoX-30, canvas.height - barraAltura, 20, 30);
+                context.fillRect(jogadorPosicaoX+40, canvas.height - barraAltura, 20, 30);
+
+                context.fillRect(jogadorPosicaoX, canvas.height - barraAltura, 40, 10);
+                context.fillRect(jogadorPosicaoX-10, canvas.height - barraAltura, 40, 10);
+                context.fillRect(jogadorPosicaoX, canvas.height - barraAltura/2-20, 40, 10);
+                context.fillRect(jogadorPosicaoX-10, canvas.height - barraAltura/2-20, 40, 10);
+
+                context.fillRect(jogadorPosicaoX+11.5, canvas.height - 100, 5, 90);
+                context.clearRect(jogadorPosicaoX, canvas.height - barraAltura, barraLargura, barraAltura);
+                context.strokeRect(jogadorPosicaoX, canvas.height - barraAltura, barraLargura, barraAltura);
+
+
+
+            }
+            
+        </script>
+        
+    </body>
+</html>
